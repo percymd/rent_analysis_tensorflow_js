@@ -66,6 +66,13 @@ async function entrenarModelo(model, inputs, labels) {
     });
 }
 
+//Almacenar modelo
+
+async function guardarModelo(){
+    const saveResult = await modelo.save('downloads://modelo-regresion');
+    
+}
+
 function convertirDatosATensores(data) {
     return tf.tidy(() => {
 
