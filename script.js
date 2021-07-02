@@ -31,6 +31,34 @@ function crearModelo() {
     return modelo;
 }
 
+const optimizador = tf.train.adam();
+const funcion_perdida = tf.losses.meanSquaredError;
+const metricas = ['mse'];
+
+async function entrenarModelo(model, inputs, labels) {
+    
+    model.compile({
+        optimizer: optimizador,
+        loss: funcion_perdida,
+        metrics: metricas,
+    });
+
+    const surface = {name: 'show.history live', tab: 'Training'};
+    const tamanoBatch = 28;
+    const epochs = 50;
+    const history = [];
+    return await model.fit(inputs, labels, {
+        tamanoBatch,
+        epochs,
+        shuffle: true,
+        callbacks: tfvis.show.fitCallbacks(
+            {name: 'Training Performance'},
+            ['loss', 'mse'],
+            {height: 200, callbacks: ['onEpochEnd']}
+        )
+    });
+}
+
 function convertirDatosATensores(data) {
     return tf.tidy(() => {
 
@@ -61,16 +89,21 @@ function convertirDatosATensores(data) {
     });
 }
 
+var modelo;
+
 async function run() {
     //body...
     const data = await getData();
 
     visualizarDatos (data);
 
-    crearModelo ();
+    modelo = crearModelo ();
 
     const tensorData = convertirDatosATensores (data);
     const {entradas, etiquetas} = tensorData;
+
+    entrenarModelo (modelo, entradas, etiquetas);
+
 }
 
 run();
