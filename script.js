@@ -1,3 +1,5 @@
+var stopTraining;
+
 async function getData() {
     const datosCasasR = await fetch("datos.json");
     const datosCasas = await datosCasasR.json();
@@ -58,11 +60,16 @@ async function entrenarModelo(model, inputs, labels) {
         tamanoBatch,
         epochs,
         shuffle: true,
-        callbacks: tfvis.show.fitCallbacks(
-            {name: 'Training Performance'},
-            ['loss', 'mse'],
-            {height: 200, callbacks: ['onEpochEnd']}
-        )
+        callbacks: {
+            onEpochEnd: (epoch, log) => {
+                history.push(log);
+                tfvis.show.history(surface, history, ['loss', 'mse']);
+
+                if(stopTraining){
+                    modelo.stopTraining = true;
+                }
+            }
+        }
     });
 }
 
