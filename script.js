@@ -7,9 +7,25 @@ async function getData() {
     return datosLimpios;
 }
 
+function visualizarDatos(data){
+
+    const valores = data.map(d => ({x: d.cuartos, y: d.precio}));
+    tfvis.render.scatterplot(
+        {name: 'Cuartos vs Precio'},
+        {values: valores},
+        {
+            xLabel: 'Cuartos',
+            yLabel: 'Precio',
+            height: 300
+        }
+    );
+}
+
 async function run() {
     //body...
     const data = await getData();
+
+    visualizarDatos (data);
 }
 
 run();
