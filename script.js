@@ -11,6 +11,14 @@ async function getData() {
     return datosLimpios;
 }
 
+async function cargarModelo(){
+    const uploadJSONInput = document.getElementById('upload-json');
+    const uploadWeightsInput = document.getElementById('upload-weights');
+    modelo = await tf.loadLayersModel(tf.io.browserFiles(
+        [uploadJSONInput.files[0], uploadWeightsInput.files[0]]));
+        console.log("Modelo cargado");
+}
+
 function visualizarDatos(data){
 
     const valores = data.map(d => ({
