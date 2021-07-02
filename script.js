@@ -11,6 +11,48 @@ async function getData() {
     return datosLimpios;
 }
 
+//mostrar curva de Inferencia()
+async function verCurvaInferencia(){
+    var data = await getData();
+    var tensorData = await convertirDatosATensores(data);
+    const {entradasMax, entradasMin, etiquetasMax, etiquetasMin} = tensorData;
+
+    const [xs, preds] = tf.tidy(() => {
+
+        const xs = tf.linspace(0, 1, 100);
+        const preds = moedlo.predict(xs.reshape([100,1]));
+
+        const desnormX = xs
+            .mul(entradasMax.sub(entradasMin))
+            .add(entradasMin);
+        
+        const desnormY = xs
+            .mul(etiquetasMax.sub(etiquetasMin))
+            .add(etiquetasMin);
+
+        //Un-normalize the data
+        return [desnormX.dataSync(), desnormY.dataSync()];
+    });
+
+    const puntosPrediccion = Array.from(xs).map((val, i) => {
+        return {x: val, y: preds[i]}
+    });
+
+    const puntosOriginales = data.map(d => ({
+        x:d.cuartos, y:d.precio,
+    }));
+
+        tfvis.render.scatterplot(
+            {name: 'Predicciones vs Originales'},
+            {values: [puntosOriginales, puntosPrediccion], series: ['original', 'prediccion']},
+            {
+                xLabel: 'Cuartos',
+                yLabel: 'Precio',
+                height: 300
+            }
+        );
+}
+
 async function cargarModelo(){
     const uploadJSONInput = document.getElementById('upload-json');
     const uploadWeightsInput = document.getElementById('upload-weights');
