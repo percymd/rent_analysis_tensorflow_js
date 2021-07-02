@@ -1,15 +1,21 @@
 async function getData() {
     const datosCasasR = await fetch("datos.json");
     const datosCasas = await datosCasasR.json();
-    var datosLimpios = datosCasas.map(casa=>({precio: casa.Precio,
-                                            cuartos: casa.NumeroDeCuartosPromedio}))
+    var datosLimpios = datosCasas.map(casa=>({
+        precio: casa.Precio,
+        cuartos: casa.NumeroDeCuartosPromedio
+    }))
     datosLimpios = datosLimpios.filter(casa => (casa.precio != null && casa.cuartos != null));
     return datosLimpios;
 }
 
 function visualizarDatos(data){
 
-    const valores = data.map(d => ({x: d.cuartos, y: d.precio}));
+    const valores = data.map(d => ({
+        x: d.cuartos, 
+        y: d.precio,
+    }));
+
     tfvis.render.scatterplot(
         {name: 'Cuartos vs Precio'},
         {values: valores},
@@ -47,6 +53,7 @@ async function entrenarModelo(model, inputs, labels) {
     const tamanoBatch = 28;
     const epochs = 50;
     const history = [];
+
     return await model.fit(inputs, labels, {
         tamanoBatch,
         epochs,
@@ -65,7 +72,8 @@ function convertirDatosATensores(data) {
         tf.util.shuffle(data);
 
         const entradas = data.map(d => d.cuartos)
-        const etiquetas = data.map(d => d.precios);
+        const etiquetas = data.map(d => d.precio);
+
         const tensorEntradas = tf.tensor2d(entradas, [entradas.length,1]);
         const tensorEtiquetas = tf.tensor2d(etiquetas, [etiquetas.length,1]);
 
@@ -102,7 +110,7 @@ async function run() {
     const tensorData = convertirDatosATensores (data);
     const {entradas, etiquetas} = tensorData;
 
-    entrenarModelo (modelo, entradas, etiquetas);
+    await entrenarModelo (modelo, entradas, etiquetas);
 
 }
 
